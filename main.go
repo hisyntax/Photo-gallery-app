@@ -1,49 +1,66 @@
 package main
 
 import (
-	"fmt"
-	"html/template"
 	"net/http"
+
+	"src/github.com/gorilla/mux/views"
 
 	"github.com/gorilla/mux"
 )
 
-var homeTemplate *template.Template
+var (
+	homeView    *views.View
+	contactView *views.View
+	faqView     *views.View
+	meView      *views.View
+	signUpView  *views.View
+)
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeTemplate.Execute(w, nil); err != nil {
-		panic(err)
-	}
+	must(homeView.Render(w, nil))
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "To get in touch, please send an email"+"to <a href=\"mailto:support@lenslocked.com\">"+"support@lenselocked.com</a>.")
+	must(contactView.Render(w, nil))
 }
 
 func faq(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>This is a FAQ page</h1>")
+	must(faqView.Render(w, nil))
+
 }
 
-func custom404(w http.ResponseWriter, r *http.Request) {
+func me(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>This is a custom 404 page</h1>")
+	must(meView.Render(w, nil))
 }
 
-func main() {
-	var err error
-	homeTemplate, err = template.ParseFiles("views/home.html")
+func signup(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	must(signUpView.Render(w, nil))
+}
+
+//A helper function that panics on any error
+func must(err error) {
 	if err != nil {
 		panic(err)
 	}
-	var h http.Handler = http.HandlerFunc(custom404)
+}
+
+func main() {
+	homeView = views.NewView("bootstrap", "views/home.html")
+	contactView = views.NewView("bootstrap", "views/contact.html")
+	faqView = views.NewView("bootstrap", "views/faq.html")
+	meView = views.NewView("base", "views/me.html")
+	signUpView = views.NewView("bootstrap", "views/signup.html")
 	r := mux.NewRouter()
-	r.NotFoundHandler = h
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
 	r.HandleFunc("/faq", faq)
+	r.HandleFunc("/me", me)
+	r.HandleFunc("/signup", signup)
 	http.ListenAndServe(":3000", r)
 
 }
