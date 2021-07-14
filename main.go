@@ -12,7 +12,6 @@ var (
 	homeView    *views.View
 	contactView *views.View
 	faqView     *views.View
-	meView      *views.View
 	signUpView  *views.View
 )
 
@@ -32,11 +31,6 @@ func faq(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func me(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(meView.Render(w, nil))
-}
-
 func signup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	must(signUpView.Render(w, nil))
@@ -53,13 +47,11 @@ func main() {
 	homeView = views.NewView("bootstrap", "views/home.html")
 	contactView = views.NewView("bootstrap", "views/contact.html")
 	faqView = views.NewView("bootstrap", "views/faq.html")
-	meView = views.NewView("base", "views/me.html")
 	signUpView = views.NewView("bootstrap", "views/signup.html")
 	r := mux.NewRouter()
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
 	r.HandleFunc("/faq", faq)
-	r.HandleFunc("/me", me)
 	r.HandleFunc("/signup", signup)
 	http.ListenAndServe(":3000", r)
 
